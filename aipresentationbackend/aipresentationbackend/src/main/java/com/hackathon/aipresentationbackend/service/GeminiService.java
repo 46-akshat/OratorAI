@@ -21,16 +21,12 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.TimeoutException;
 
-/**
- * Service for interacting with Google's Gemini AI API
- * Handles presentation analysis, feedback generation, and scoring
- */
 @Service
 public class GeminiService {
     private static final Logger log = LoggerFactory.getLogger(GeminiService.class);
     private static final String GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
-    private static final String GEMINI_MODEL = "models/gemini-1.5-pro";
-    private static final String GENERATE_CONTENT_ENDPOINT = "/generateContent";
+    private static final String GEMINI_MODEL = "models/gemini-2.0-flash";
+    private static final String GENERATE_CONTENT_ENDPOINT = ":generateContent";
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
@@ -43,14 +39,6 @@ public class GeminiService {
         this.objectMapper = objectMapper;
     }
 
-    /**
-     * Analyze a presentation by comparing original script with spoken transcript
-     *
-     * @param originalScript The original presentation script
-     * @param spokenTranscript The transcript of what was actually spoken
-     * @return AnalysisResponse with feedback and score
-     * @throws GeminiApiException if the API call fails
-     */
     public AnalysisResponse analyzePresentation(String originalScript, String spokenTranscript) {
         log.info("Analyzing presentation with original script length: {}, spoken transcript length: {}",
                 originalScript.length(), spokenTranscript.length());
@@ -70,14 +58,6 @@ public class GeminiService {
         }
     }
 
-    /**
-     * Generate improvement suggestions based on presentation analysis
-     *
-     * @param originalScript The original presentation script
-     * @param spokenTranscript The transcript of what was actually spoken
-     * @return List of improvement suggestions
-     * @throws GeminiApiException if the API call fails
-     */
     public List<String> generateImprovementSuggestions(String originalScript, String spokenTranscript) {
         log.info("Generating improvement suggestions for presentation");
         try {
@@ -96,14 +76,6 @@ public class GeminiService {
         }
     }
 
-    /**
-     * Calculate a numerical score for presentation delivery
-     *
-     * @param originalScript The original presentation script
-     * @param spokenTranscript The transcript of what was actually spoken
-     * @return Score from 1-10
-     * @throws GeminiApiException if the API call fails
-     */
     public int calculateDeliveryScore(String originalScript, String spokenTranscript) {
         log.info("Calculating delivery score for presentation");
         try {
@@ -131,7 +103,9 @@ public class GeminiService {
         content.put("role", "user");
         requestBody.put("contents", List.of(content));
 
+        // --- THIS IS THE CORRECTED LINE ---
         String apiUrl = GEMINI_API_BASE_URL + "/" + GEMINI_MODEL + GENERATE_CONTENT_ENDPOINT + "?key=" + geminiApiKey;
+        log.info("Calling Gemini API at URL: {}", apiUrl); // Added log to confirm URL
 
         try {
             return webClient.post()
@@ -153,17 +127,19 @@ public class GeminiService {
     }
 
     private String createAnalysisPrompt(String originalScript, String spokenTranscript) {
-        return "You are an expert presentation coach analyzing a presentation delivery. " +
-                "Compare the original script with the spoken transcript and provide detailed feedback. " +
-                "Focus on pacing, clarity, filler words, and content accuracy. " +
-                "Provide specific positive feedback on strengths and actionable improvement suggestions. " +
-                "\n\nOriginal Script:\n" + originalScript +
-                "\n\nSpoken Transcript:\n" + spokenTranscript +
-                "\n\nPlease provide your analysis in the following JSON format:" +
+        return "You are an expert presentation coach. Your task is to analyze a presentation delivery by comparing the original script with the spoken transcript. " +
+                "Focus on content accuracy, but also identify potential areas for improvement in delivery style, such as the use of filler words (e.g., 'um', 'ah', 'like'), pacing, and clarity. " +
+                "\n\n" +
+                "Original Script:\n" + originalScript +
+                "\n\n" +
+                "Spoken Transcript:\n" + spokenTranscript +
+                "\n\n" +
+                "Based on your analysis, you MUST provide feedback in the following JSON format. " +
+                "Provide one concise sentence of positive feedback. Even if the delivery was excellent, you MUST provide at least one specific, actionable improvement suggestion. Do not leave any field empty." +
                 "\n{" +
-                "\n  \"score\": [numerical score between 1-10]," +
-                "\n  \"positiveFeedback\": \"[detailed positive feedback highlighting strengths]\"," +
-                "\n  \"improvementPoints\": \"[actionable improvement suggestions]\"" +
+                "\n  \"score\": [a numerical score between 1-10]," +
+                "\n  \"positiveFeedback\": \"[one sentence of positive feedback highlighting a strength]\"," +
+                "\n  \"improvementPoints\": \"[one actionable improvement suggestion]\"" +
                 "\n}";
     }
 

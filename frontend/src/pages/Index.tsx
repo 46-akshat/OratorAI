@@ -1,10 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
-import { AnimatePresence } from "framer-motion"; // 1. Import AnimatePresence
+import { AnimatePresence } from "framer-motion";
 import ScriptInput from "@/components/ScriptInput";
 import Recorder from "@/components/Recorder";
 import FeedbackDisplay from "@/components/FeedbackDisplay";
-import ModalLoader from "@/components/ModalLoader"; // 2. Import your ModalLoader
+import ModalLoader from "@/components/ModalLoader";
 import { useToast } from "@/hooks/use-toast";
 import { Brain } from "lucide-react";
 
@@ -18,8 +18,6 @@ interface FeedbackData {
 const Index = () => {
   const [script, setScript] = useState("");
   const [isScriptLocked, setIsScriptLocked] = useState(false);
-  const [transcript, setTranscript] = useState("");
-  const [isRecording, setIsRecording] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [feedbackData, setFeedbackData] = useState<FeedbackData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -35,11 +33,12 @@ const Index = () => {
     }
   };
 
-  const handleAnalyze = async () => {
-    if (!transcript.trim()) {
+  // This function now receives the audio blob from the Recorder
+  const handleRecordingComplete = async (audioBlob: Blob) => {
+    if (!script.trim()) {
       toast({
-        title: "No Recording Found",
-        description: "Please record your delivery first.",
+        title: "Script is Empty",
+        description: "Please enter your script before analyzing.",
         variant: "destructive",
       });
       return;
@@ -47,20 +46,34 @@ const Index = () => {
 
     setIsLoading(true);
     setError(null);
+    setFeedbackData(null);
+
+    // Create a FormData object to send the file and script
+    const formData = new FormData();
+    formData.append("audioFile", audioBlob, "recording.wav");
+    formData.append("originalScript", script);
 
     try {
-      const response = await axios.post("/api/analyze", {
-        originalScript: script,
-        spokenTranscript: transcript,
-      });
+      // This now calls your backend endpoint that accepts a file
+      const response = await axios.post(
+        "http://localhost:8080/api/v1/analyze", 
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
+      console.log("Data received from backend:", response.data); // For debugging
       setFeedbackData(response.data);
       toast({
         title: "Analysis Complete",
         description: "Your presentation feedback is ready!",
       });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to analyze your delivery. Please try again.";
+    } catch (err: any) {
+      console.error("Analysis failed:", err);
+      const errorMessage = err.response?.data?.message || "An unknown error occurred.";
       setError(errorMessage);
       toast({
         title: "Analysis Failed",
@@ -73,15 +86,11 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative"> {/* Added `relative` for positioning context */}
-      
-      {/* 3. Add the ModalLoader here */}
-      {/* It will appear on top of everything when isLoading is true */}
+    <div className="min-h-screen bg-background relative">
       <AnimatePresence>
         {isLoading && <ModalLoader />}
       </AnimatePresence>
 
-      {/* Header */}
       <header className="border-b border-border bg-gradient-surface">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center gap-3">
@@ -91,10 +100,8 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-160px)]">
-          {/* Column 1: Script Input */}
           <div className="bg-gradient-surface rounded-xl p-6 border border-border shadow-card">
             <ScriptInput
               script={script}
@@ -103,25 +110,16 @@ const Index = () => {
               onLockScript={handleLockScript}
             />
           </div>
-
-          {/* Column 2: Recording */}
           <div className="bg-gradient-surface rounded-xl p-6 border border-border shadow-card">
+            {/* The props passed to Recorder are now updated for audio recording */}
             <Recorder
               isScriptLocked={isScriptLocked}
-              transcript={transcript}
-              onTranscriptChange={setTranscript}
-              isRecording={isRecording}
-              onStartRecording={() => setIsRecording(true)}
-              onStopRecording={() => setIsRecording(false)}
-              onAnalyze={handleAnalyze}
+              onRecordingComplete={handleRecordingComplete}
               isLoading={isLoading}
             />
           </div>
-
-          {/* Column 3: Feedback */}
           <div className="bg-gradient-surface rounded-xl p-6 border border-border shadow-card">
             <FeedbackDisplay
-              // The modal now handles the global loading UI, so isLoading prop is not needed here
               feedbackData={feedbackData}
               error={error}
             />

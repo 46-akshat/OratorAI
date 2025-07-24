@@ -51,6 +51,7 @@ public class TranscriptionRequest {
     
     @JsonProperty("custom_spelling")
     private Map<String, String> customSpelling;
+
     
     // Default constructor
     public TranscriptionRequest() {

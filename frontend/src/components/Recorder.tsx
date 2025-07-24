@@ -1,148 +1,94 @@
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Mic, Square, Play, BarChart3 } from "lucide-react";
+import { Mic, Square, BarChart3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+// The props have been simplified for the new functionality
 interface RecorderProps {
   isScriptLocked: boolean;
-  transcript: string;
-  onTranscriptChange: (transcript: string) => void;
-  isRecording: boolean;
-  onStartRecording: () => void;
-  onStopRecording: () => void;
-  onAnalyze: () => void;
+  onRecordingComplete: (audioBlob: Blob) => void;
   isLoading: boolean;
 }
 
 const Recorder = ({
   isScriptLocked,
-  transcript,
-  onTranscriptChange,
-  isRecording,
-  onStartRecording,
-  onStopRecording,
-  onAnalyze,
+  onRecordingComplete,
   isLoading
 }: RecorderProps) => {
+  const [isRecording, setIsRecording] = useState(false);
   const [hasRecorded, setHasRecorded] = useState(false);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
 
-  useEffect(() => {
-    // Initialize speech recognition
-    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      
-      if (recognitionRef.current) {
-        recognitionRef.current.continuous = true;
-        recognitionRef.current.interimResults = true;
-        recognitionRef.current.lang = 'en-US';
+  const startRecording = async () => {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorderRef.current = new MediaRecorder(stream);
+        audioChunksRef.current = []; // Clear previous recording
 
-        recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
-          let finalTranscript = '';
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            if (event.results[i].isFinal) {
-              finalTranscript += event.results[i][0].transcript + ' ';
-            }
-          }
-          if (finalTranscript) {
-            onTranscriptChange(transcript + finalTranscript);
-          }
+        // This event handler collects the audio data
+        mediaRecorderRef.current.ondataavailable = (event) => {
+          audioChunksRef.current.push(event.data);
         };
 
-        recognitionRef.current.onerror = (event) => {
-          console.error('Speech recognition error:', event.error);
-          toast({
-            title: "Speech Recognition Error",
-            description: "There was an issue with speech recognition. Please try again.",
-            variant: "destructive",
-          });
-          onStopRecording();
+        // This event handler is called when recording stops
+        mediaRecorderRef.current.onstop = () => {
+          // Combine all chunks into a single audio file (Blob)
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+          // Send the complete audio file to the parent component to trigger analysis
+          onRecordingComplete(audioBlob);
+          // Stop the microphone track to turn off the browser's recording indicator
+          stream.getTracks().forEach(track => track.stop());
         };
+
+        mediaRecorderRef.current.start();
+        setIsRecording(true);
+        setHasRecorded(true);
+        toast({ title: "Recording Started", description: "Start speaking your presentation now." });
+
+      } catch (err) {
+        console.error("Microphone access error:", err);
+        toast({
+          title: "Microphone Error",
+          description: "Could not access the microphone. Please check your browser permissions.",
+          variant: "destructive",
+        });
       }
     } else {
       toast({
-        title: "Speech Recognition Not Supported",
-        description: "Your browser doesn't support speech recognition. Please use Chrome or Edge.",
+        title: "Browser Not Supported",
+        description: "Your browser does not support audio recording.",
         variant: "destructive",
-      });
-    }
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    };
-  }, [onTranscriptChange, onStopRecording, toast]);
-
-  const startRecording = () => {
-    if (recognitionRef.current) {
-      onTranscriptChange(''); // Clear previous transcript
-      recognitionRef.current.start();
-      onStartRecording();
-      toast({
-        title: "Recording Started",
-        description: "Start speaking your presentation now.",
       });
     }
   };
 
   const stopRecording = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      onStopRecording();
-      setHasRecorded(true);
-      toast({
-        title: "Recording Stopped",
-        description: "Your delivery has been captured successfully.",
-      });
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop(); // This will trigger the 'onstop' event handler
+      setIsRecording(false);
+      toast({ title: "Recording Complete", description: "Analysis will begin shortly." });
     }
   };
 
-  const getButtonProps = () => {
+  // The UI is now much simpler
+  const renderButton = () => {
     if (!isScriptLocked) {
-      return {
-        disabled: true,
-        children: "Lock Script First",
-        onClick: () => {},
-        variant: "secondary" as const,
-        icon: <Mic className="h-5 w-5" />
-      };
+      return <Button disabled variant="secondary" className="w-full text-lg py-6"><Mic className="mr-2 h-5 w-5" />Lock Script to Record</Button>;
     }
-
     if (isRecording) {
-      return {
-        disabled: false,
-        children: "Stop Recording",
-        onClick: stopRecording,
-        variant: "recording" as const,
-        icon: <Square className="h-5 w-5" />
-      };
+      return <Button onClick={stopRecording} variant="destructive" className="w-full text-lg py-6 animate-pulse"><Square className="mr-2 h-5 w-5" />Stop Recording</Button>;
     }
-
-    if (hasRecorded && transcript.trim()) {
-      return {
-        disabled: isLoading,
-        children: isLoading ? "Analyzing..." : "Analyze Delivery",
-        onClick: onAnalyze,
-        variant: "analyze" as const,
-        icon: <BarChart3 className="h-5 w-5" />
-      };
+    // After recording, the button will show the loading state from the parent
+    if (isLoading) {
+        return <Button disabled className="w-full text-lg py-6"><BarChart3 className="mr-2 h-5 w-5 animate-spin" />Analyzing...</Button>;
     }
-
-    return {
-      disabled: false,
-      children: "Start Recording",
-      onClick: startRecording,
-      variant: "coach" as const,
-      icon: <Play className="h-5 w-5" />
-    };
+    // Default state and after analysis is complete
+    return <Button onClick={startRecording} className="w-full text-lg py-6"><Mic className="mr-2 h-5 w-5" />{hasRecorded ? "Record Again" : "Start Recording"}</Button>;
   };
-
-  const buttonProps = getButtonProps();
 
   return (
     <motion.div 
@@ -151,58 +97,25 @@ const Recorder = ({
       transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
       className="flex flex-col h-full"
     >
-      <motion.div 
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-        className="flex items-center gap-3 mb-4"
-      >
+      <div className="flex items-center gap-3 mb-4">
         <Mic className="h-6 w-6 text-primary" />
         <h2 className="text-xl font-bold text-foreground">Delivery & Recording</h2>
-      </motion.div>
+      </div>
       
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
-        className="flex-1 flex flex-col gap-4"
-      >
-        <div className="relative">
-          <Textarea
-            placeholder={isRecording ? "Speak now... your words will appear here" : "Your spoken transcript will appear here..."}
-            value={transcript}
-            readOnly={isRecording}
-            onChange={e =>!isRecording && onTranscriptChange(e.target.value)}
-            className="flex-1 min-h-[300px] resize-none bg-gradient-surface border-border text-foreground placeholder:text-muted-foreground"
-          />
-          
-          <AnimatePresence>
-            {isRecording && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.3 }}
-                className="absolute top-3 right-3 w-3 h-3 bg-recording rounded-full animate-pulse"
-              />
-            )}
-          </AnimatePresence>
+      <div className="flex-1 flex flex-col justify-center items-center gap-6">
+        <div className="text-center text-muted-foreground text-lg">
+            {isRecording && "Recording in progress..."}
+            {isLoading && "Please wait while we analyze your speech."}
+            {!isRecording && !isLoading && (hasRecorded ? "Recording complete. You can record again or view your feedback." : "Press 'Start Recording' to begin.")}
         </div>
-        
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
+          className="w-full"
         >
-          <Button
-            {...buttonProps}
-            size="coach"
-            className="w-full"
-          >
-            {buttonProps.icon}
-            {buttonProps.children}
-          </Button>
+          {renderButton()}
         </motion.div>
-      </motion.div>
+      </div>
     </motion.div>
   );
 };

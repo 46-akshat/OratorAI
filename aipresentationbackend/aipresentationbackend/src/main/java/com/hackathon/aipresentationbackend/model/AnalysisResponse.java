@@ -3,24 +3,23 @@ package com.hackathon.aipresentationbackend.model;
 public class AnalysisResponse {
 
     // --- Fields ---
-    // FIX 2: Renamed fields to use standard camelCase.
     private final int score;
     private final String positiveFeedback;
     private final String improvementPoints;
     private final String audioUrl;
+    private final String spokenTranscript;
 
     // --- Private Constructor ---
-    // FIX 1: The constructor now correctly accepts a Builder object.
-    // It's private to force the use of the builder.
+    // This constructor now correctly accepts only a Builder object.
     private AnalysisResponse(Builder builder) {
         this.score = builder.score;
         this.positiveFeedback = builder.positiveFeedback;
         this.improvementPoints = builder.improvementPoints;
         this.audioUrl = builder.audioUrl;
+        this.spokenTranscript = builder.spokenTranscript; // Gets the transcript from the builder
     }
 
     // --- Getters ---
-    // FIX 2: Getter names updated to match camelCase fields.
     public int getScore() {
         return score;
     }
@@ -37,16 +36,18 @@ public class AnalysisResponse {
         return audioUrl;
     }
 
+    public String getSpokenTranscript() {
+        return spokenTranscript;
+    }
+
     // --- Static nested Builder class ---
     public static class Builder {
-        // FIX 2: Renamed fields to use standard camelCase.
         private int score;
         private String positiveFeedback;
         private String improvementPoints;
         private String audioUrl;
+        private String spokenTranscript;
 
-        // --- Builder methods for chaining ---
-        // FIX 2: Method names updated for consistency.
         public Builder score(int score) {
             this.score = score;
             return this;
@@ -64,6 +65,11 @@ public class AnalysisResponse {
 
         public Builder audioUrl(String audioUrl) {
             this.audioUrl = audioUrl;
+            return this;
+        }
+
+        public Builder spokenTranscript(String spokenTranscript) {
+            this.spokenTranscript = spokenTranscript;
             return this;
         }
 

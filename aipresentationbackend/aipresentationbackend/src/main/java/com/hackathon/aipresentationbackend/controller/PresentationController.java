@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:8081", "https://d56632c13c30.ngrok-free.app/"})
 public class PresentationController {
     private final MurfService murfService;
 

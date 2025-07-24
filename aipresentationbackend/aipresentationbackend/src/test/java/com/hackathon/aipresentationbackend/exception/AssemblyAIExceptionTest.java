@@ -16,7 +16,7 @@ public class AssemblyAIExceptionTest {
         
         // Assert
         assertEquals(message, exception.getReason());
-        assertEquals(status, exception.getStatus());
+        assertEquals(status, exception.getStatusCode());
     }
     
     @Test
@@ -29,7 +29,7 @@ public class AssemblyAIExceptionTest {
         
         // Assert
         assertEquals(message, exception.getReason());
-        assertEquals(status, exception.getStatus());
+        assertEquals(status, exception.getStatusCode());
         assertEquals(cause, exception.getCause());
     }
     

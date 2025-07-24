@@ -97,7 +97,7 @@ public class GeminiServiceTest {
         });
         
         // Verify the exception details
-        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
         assertTrue(exception.getMessage().contains("Failed to analyze presentation"));
         assertEquals("GEMINI_API_UNAUTHORIZED", exception.getErrorCode());
     }

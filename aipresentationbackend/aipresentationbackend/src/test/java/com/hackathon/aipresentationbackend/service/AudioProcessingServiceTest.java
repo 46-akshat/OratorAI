@@ -95,7 +95,7 @@ public class AudioProcessingServiceTest {
         AudioProcessingException exception = assertThrows(AudioProcessingException.class, 
                 () -> audioProcessingService.validateAudioFile(audioFile));
         
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertTrue(exception.getMessage().contains("empty or missing"));
     }
     
@@ -105,7 +105,7 @@ public class AudioProcessingServiceTest {
         AudioProcessingException exception = assertThrows(AudioProcessingException.class, 
                 () -> audioProcessingService.validateAudioFile(null));
         
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertTrue(exception.getMessage().contains("empty or missing"));
     }
     
@@ -123,7 +123,7 @@ public class AudioProcessingServiceTest {
         AudioProcessingException exception = assertThrows(AudioProcessingException.class, 
                 () -> audioProcessingService.validateAudioFile(audioFile));
         
-        assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, exception.getStatus());
+        assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, exception.getStatusCode());
         assertTrue(exception.getMessage().contains("Unsupported audio format"));
     }
     
@@ -146,7 +146,7 @@ public class AudioProcessingServiceTest {
         AudioProcessingException exception = assertThrows(AudioProcessingException.class, 
                 () -> audioProcessingService.validateAudioFile(audioFile));
         
-        assertEquals(HttpStatus.PAYLOAD_TOO_LARGE, exception.getStatus());
+        assertEquals(HttpStatus.PAYLOAD_TOO_LARGE, exception.getStatusCode());
         assertTrue(exception.getMessage().contains("exceeds maximum size"));
     }
     

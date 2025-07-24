@@ -1,34 +1,86 @@
 package com.hackathon.aipresentationbackend.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.List;
 import java.util.Arrays;
 
 /**
- * Model representing available voice options for speech generation
+ * Model representing available voice options for speech generation.
+ * This version uses a correct, manually implemented Builder pattern.
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class VoiceOption {
-    
-    private String voiceId;
-    private String name;
-    private String gender;
-    private String accent;
-    private String description;
-    private List<String> supportedTones;
-    
-    /**
-     * Factory method for creating a professional male voice
-     */
+
+    private final String voiceId;
+    private final String name;
+    private final String gender;
+    private final String accent;
+    private final String description;
+    private final List<String> supportedTones;
+
+    // Private constructor to force the use of the builder
+    private VoiceOption(Builder builder) {
+        this.voiceId = builder.voiceId;
+        this.name = builder.name;
+        this.gender = builder.gender;
+        this.accent = builder.accent;
+        this.description = builder.description;
+        this.supportedTones = builder.supportedTones;
+    }
+
+    // --- Getters ---
+    public String getVoiceId() { return voiceId; }
+    public String getName() { return name; }
+    public String getGender() { return gender; }
+    public String getAccent() { return accent; }
+    public String getDescription() { return description; }
+    public List<String> getSupportedTones() { return supportedTones; }
+
+    // --- Static nested Builder class ---
+    public static class Builder {
+        private String voiceId;
+        private String name;
+        private String gender;
+        private String accent;
+        private String description;
+        private List<String> supportedTones;
+
+        public Builder voiceId(String voiceId) {
+            this.voiceId = voiceId;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder gender(String gender) {
+            this.gender = gender;
+            return this;
+        }
+
+        public Builder accent(String accent) {
+            this.accent = accent;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder supportedTones(List<String> supportedTones) {
+            this.supportedTones = supportedTones;
+            return this;
+        }
+
+        public VoiceOption build() {
+            return new VoiceOption(this);
+        }
+    }
+
+    // --- Factory methods now use the manual builder ---
     public static VoiceOption createProfessionalMale(String voiceId, String name, String accent) {
-        return VoiceOption.builder()
+        return new VoiceOption.Builder()
                 .voiceId(voiceId)
                 .name(name)
                 .gender("Male")
@@ -37,12 +89,9 @@ public class VoiceOption {
                 .supportedTones(Arrays.asList("confident", "conversational", "urgent"))
                 .build();
     }
-    
-    /**
-     * Factory method for creating a professional female voice
-     */
+
     public static VoiceOption createProfessionalFemale(String voiceId, String name, String accent) {
-        return VoiceOption.builder()
+        return new VoiceOption.Builder()
                 .voiceId(voiceId)
                 .name(name)
                 .gender("Female")
@@ -51,12 +100,9 @@ public class VoiceOption {
                 .supportedTones(Arrays.asList("confident", "conversational", "empathetic"))
                 .build();
     }
-    
-    /**
-     * Factory method for creating a conversational male voice
-     */
+
     public static VoiceOption createConversationalMale(String voiceId, String name, String accent) {
-        return VoiceOption.builder()
+        return new VoiceOption.Builder()
                 .voiceId(voiceId)
                 .name(name)
                 .gender("Male")
@@ -65,12 +111,9 @@ public class VoiceOption {
                 .supportedTones(Arrays.asList("conversational", "empathetic", "urgent"))
                 .build();
     }
-    
-    /**
-     * Factory method for creating a conversational female voice
-     */
+
     public static VoiceOption createConversationalFemale(String voiceId, String name, String accent) {
-        return VoiceOption.builder()
+        return new VoiceOption.Builder()
                 .voiceId(voiceId)
                 .name(name)
                 .gender("Female")
@@ -79,12 +122,9 @@ public class VoiceOption {
                 .supportedTones(Arrays.asList("conversational", "empathetic", "confident"))
                 .build();
     }
-    
-    /**
-     * Factory method for creating a versatile voice that supports all tones
-     */
+
     public static VoiceOption createVersatileVoice(String voiceId, String name, String gender, String accent) {
-        return VoiceOption.builder()
+        return new VoiceOption.Builder()
                 .voiceId(voiceId)
                 .name(name)
                 .gender(gender)
@@ -93,38 +133,24 @@ public class VoiceOption {
                 .supportedTones(Arrays.asList("confident", "conversational", "urgent", "empathetic"))
                 .build();
     }
-    
-    /**
-     * Check if this voice supports a specific tone
-     */
+
+    // --- Helper methods remain the same ---
     public boolean supportsTone(String tone) {
         return supportedTones != null && supportedTones.contains(tone.toLowerCase());
     }
-    
-    /**
-     * Check if this voice supports a specific ToneType
-     */
+
     public boolean supportsTone(ToneType toneType) {
         return toneType != null && supportsTone(toneType.getValue());
     }
-    
-    /**
-     * Get the number of supported tones
-     */
+
     public int getSupportedToneCount() {
         return supportedTones != null ? supportedTones.size() : 0;
     }
-    
-    /**
-     * Check if this is a male voice
-     */
+
     public boolean isMale() {
         return "Male".equalsIgnoreCase(gender);
     }
-    
-    /**
-     * Check if this is a female voice
-     */
+
     public boolean isFemale() {
         return "Female".equalsIgnoreCase(gender);
     }
