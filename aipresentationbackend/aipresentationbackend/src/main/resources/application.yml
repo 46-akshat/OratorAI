@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+# Mock mode for development/demo (set to false for production)
+mock:
+  mode: ${MOCK_MODE:true}
+
+# API Keys (set these as environment variables in production)
+gemini:
+  api:
+    key: ${GEMINI_API_KEY:your-gemini-api-key}
+
+murf:
+  api:
+    key: ${MURF_API_KEY:your-murf-api-key}
+
+assemblyai:
+  api:
+    key: ${ASSEMBLYAI_API_KEY:your-assemblyai-api-key}
+
+logging:
+  level:
+    com.hackathon.aipresentationbackend: INFO
+    org.springframework.web.reactive.function.client: WARN
+
+# CORS configuration
+spring:
+  web:
+    cors:
+      allowed-origins: "*"
+      allowed-methods: "*"
+      allowed-headers: "*"

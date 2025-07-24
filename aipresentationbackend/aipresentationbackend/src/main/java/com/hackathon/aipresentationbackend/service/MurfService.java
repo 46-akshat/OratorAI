@@ -166,6 +166,31 @@ public class MurfService {
         return voices;
     }
 
+    /**
+     * Generate speech using MurfRequest model (for voice recommendation system)
+     */
+    public String generateSpeech(com.hackathon.aipresentationbackend.model.MurfRequest request) {
+        log.info("Generating speech with MurfRequest - text length: {}, voice: {}, tone: {}",
+                request.getText().length(), request.getVoiceId(), request.getTone());
+
+        try {
+            SpeechRequest speechRequest = new SpeechRequest(
+                request.getText(),
+                request.getVoiceId(),
+                request.getSpeed() != null ? request.getSpeed() : 1.0,
+                request.getTone()
+            );
+
+            SpeechResponse response = generateSpeech(speechRequest);
+            return response.getAudioUrl();
+
+        } catch (Exception e) {
+            log.error("Error generating speech with MurfRequest: {}", e.getMessage(), e);
+            throw new MurfApiException("Failed to generate speech: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR, e);
+        }
+    }
+
     private boolean isRetryableException(Throwable throwable) {
         if (throwable instanceof WebClientResponseException) {
             HttpStatus status = HttpStatus.valueOf(((WebClientResponseException) throwable).getStatusCode().value());
