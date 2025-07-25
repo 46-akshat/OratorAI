@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Award, TrendingUp, Volume2, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button"; // Import Button
+import { Award, TrendingUp, Volume2, AlertCircle, Download } from "lucide-react";
+import { useToast } from "@/hooks/use-toast"; // Import useToast for feedback
 
 // This interface defines the shape of the data the component expects
 interface FeedbackData {
@@ -18,6 +20,8 @@ interface FeedbackDisplayProps {
 }
 
 const FeedbackDisplay = ({ feedbackData, error }: FeedbackDisplayProps) => {
+  const { toast } = useToast(); // Initialize toast
+
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
@@ -43,6 +47,22 @@ const FeedbackDisplay = ({ feedbackData, error }: FeedbackDisplayProps) => {
     if (score >= 8) return "default";
     if (score >= 5) return "secondary";
     return "destructive";
+  };
+  
+  // --- NEW: Handler for the download audio button ---
+  const handleDownloadAudio = async () => {
+    if (!feedbackData || !feedbackData.audioUrl) return;
+    try {
+      const success = await window.electronAPI.saveAudio(feedbackData.audioUrl);
+      if (success) {
+        toast({ title: "Success", description: "Audio file saved." });
+      } else {
+        toast({ title: "Info", description: "Save was cancelled." });
+      }
+    } catch (error) {
+      console.error("Failed to save audio:", error);
+      toast({ title: "Error", description: "Failed to save the audio file.", variant: "destructive" });
+    }
   };
 
   // --- Renders an error message if the API call failed ---
@@ -113,13 +133,19 @@ const FeedbackDisplay = ({ feedbackData, error }: FeedbackDisplayProps) => {
             </Card>
           </motion.div>
 
-          {/* Audio Feedback Card */}
+          {/* Audio Feedback Card with Download Button */}
           {feedbackData.audioUrl && (
             <motion.div variants={cardVariants}>
               <Card className="bg-gradient-surface border-border">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-primary">
-                    <Volume2 className="h-5 w-5" /> Audio Feedback
+                  <CardTitle className="flex items-center justify-between text-primary">
+                    <div className="flex items-center gap-2">
+                      <Volume2 className="h-5 w-5" /> Hear an Ideal Delivery
+                    </div>
+                    {/* --- NEW DOWNLOAD BUTTON --- */}
+                    <Button variant="ghost" size="icon" onClick={handleDownloadAudio}>
+                      <Download className="h-5 w-5" />
+                    </Button>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
