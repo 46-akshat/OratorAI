@@ -3,6 +3,9 @@
 
 <img width="1918" height="1007" alt="image" src="https://github.com/user-attachments/assets/9d112619-5e23-4abf-b98b-fe9abafd8e06" />
 
+<img width="1727" height="937" alt="image" src="https://github.com/user-attachments/assets/d4fc02ad-9145-4c8a-9d97-7e37619592f8" />
+
+
 
 Orator AI is a full-stack desktop application designed to help users improve their public speaking and presentation skills. By leveraging a powerful pipeline of modern AI services, it provides comprehensive feedback on a user's delivery by comparing their spoken words to their original script.
 
