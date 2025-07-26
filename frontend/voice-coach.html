@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Coach - Improve Your Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .step {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            border-color: #4facfe;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.1);
+        }
+
+        .step-number {
+            background: #4facfe;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .step-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4facfe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9ff;
+            border-radius: 15px;
+            border-left: 5px solid #4facfe;
+        }
+
+        .analysis-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .voice-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .voice-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .improvement-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .improvement-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .improvement-list li:before {
+            content: "✓";
+            color: #4facfe;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .audio-player {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .play-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        .error {
+            background: #ffe6e6;
+            color: #d63031;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #d63031;
+        }
+
+        .confidence-score {
+            display: inline-block;
+            background: #4facfe;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 AI Voice Coach</h1>
+            <p>Transform your presentation delivery with AI-powered voice recommendations</p>
+        </div>
+
+        <div class="content">
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">1</span>
+                    Enter Your Speech
+                </div>
+                <textarea id="speechText" placeholder="Paste your presentation script here... 
+
+For example: 'Good morning everyone. Today I want to share our quarterly results with you. We've achieved significant growth this quarter and I'm excited to discuss our future plans.'"></textarea>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">2</span>
+                    Choose Your Context
+                </div>
+                <div class="form-group">
+                    <label for="presentationType">Presentation Type:</label>
+                    <select id="presentationType">
+                        <option value="business">Business Presentation</option>
+                        <option value="casual">Casual Talk</option>
+                        <option value="educational">Educational/Training</option>
+                        <option value="sales">Sales Pitch</option>
+                        <option value="motivational">Motivational Speech</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="targetAudience">Target Audience:</label>
+                    <select id="targetAudience">
+                        <option value="professional">Professional/Corporate</option>
+                        <option value="students">Students</option>
+                        <option value="general">General Public</option>
+                        <option value="executives">Executives/Leadership</option>
+                        <option value="team">Team Members</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="preferredGender">Preferred Voice Gender (Optional):</label>
+                    <select id="preferredGender">
+                        <option value="">No Preference</option>
+                        <option value="MALE">Male Voice</option>
+                        <option value="FEMALE">Female Voice</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">3</span>
+                    Get AI Voice Recommendation
+                </div>
+                <button class="btn" onclick="analyzeVoice()">
+                    🚀 Analyze My Speech & Get Voice Recommendation
+                </button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>AI is analyzing your speech and finding the perfect voice...</p>
+            </div>
+
+            <div class="results" id="results">
+                <!-- Results will be populated here -->
+            </div>
+
+            <div class="error" id="error" style="display: none;">
+                <!-- Error messages will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+
+        async function analyzeVoice() {
+            const speechText = document.getElementById('speechText').value.trim();
+            const presentationType = document.getElementById('presentationType').value;
+            const targetAudience = document.getElementById('targetAudience').value;
+            const preferredGender = document.getElementById('preferredGender').value;
+
+            // Validation
+            if (!speechText) {
+                showError('Please enter your speech text first!');
+                return;
+            }
+
+            if (speechText.length < 50) {
+                showError('Please enter a longer speech (at least 50 characters) for better analysis.');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+
+            try {
+                const requestBody = {
+                    speechText: speechText,
+                    presentationType: presentationType,
+                    targetAudience: targetAudience
+                };
+
+                if (preferredGender) {
+                    requestBody.preferredGender = preferredGender;
+                }
+
+                const response = await fetch(`${API_BASE}/voice/recommend`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    showError(data.errorMessage || 'Failed to analyze speech');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Connection error. Please make sure the backend server is running on port 8080.');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function displayResults(data) {
+            const analysis = data.analysis;
+            const audioUrl = data.generatedAudioUrl;
+
+            const resultsHtml = `
+                <h3>🎯 AI Voice Analysis Results</h3>
+                
+                <div class="analysis-card">
+                    <h4>📊 Speech Analysis</h4>
+                    <p><strong>Detected Tone:</strong> ${analysis.detectedTone}</p>
+                    <p><strong>Recommended Tone:</strong> ${analysis.recommendedTone}</p>
+                    <p><strong>Confidence Score:</strong> <span class="confidence-score">${Math.round(analysis.confidenceScore * 100)}%</span></p>
+                </div>
+
+                <div class="analysis-card">
+                    <h4>🎤 Recommended Voice</h4>
+                    <div class="voice-info">
+                        <div class="voice-avatar">
+                            ${analysis.recommendedVoice.voiceId.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <h5>${analysis.recommendedVoice.voiceId.toUpperCase()}</h5>
+                            <p>${analysis.recommendedVoice.description}</p>
+                            <small>${analysis.recommendedVoice.gender} • ${analysis.recommendedVoice.age} • ${analysis.recommendedVoice.primaryTone}</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analysis-card">
+                    <h4>💡 Why This Voice?</h4>
+                    <p>${analysis.analysisReason}</p>
+                </div>
+
+                <div class="analysis-card">
+                    <h4>🚀 Areas for Improvement</h4>
+                    <ul class="improvement-list">
+                        ${analysis.improvementAreas.map(area => `<li>${area}</li>`).join('')}
+                    </ul>
+                </div>
+
+                ${audioUrl ? `
+                <div class="audio-player">
+                    <h4>🔊 Listen to Your Speech in the Recommended Voice</h4>
+                    <p>Compare this AI-generated version with your original delivery:</p>
+                    <audio controls style="width: 100%; margin: 15px 0;">
+                        <source src="${audioUrl}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                    <br>
+                    <button class="play-btn" onclick="playAudio('${audioUrl}')">▶️ Play Recommended Voice</button>
+                </div>
+                ` : ''}
+            `;
+
+            document.getElementById('results').innerHTML = resultsHtml;
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function showError(message) {
+            document.getElementById('error').innerHTML = message;
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function playAudio(url) {
+            const audio = new Audio(url);
+            audio.play().catch(e => {
+                console.error('Error playing audio:', e);
+                showError('Could not play audio. The audio file might not be ready yet.');
+            });
+        }
+
+        // Add some sample speeches for quick testing
+        function loadSample(type) {
+            const samples = {
+                business: "Good morning everyone. I'm excited to present our quarterly results today. We've achieved a 15% growth in revenue and expanded our market presence significantly. Our team has worked incredibly hard to reach these milestones, and I believe we're well-positioned for continued success in the coming quarter.",
+                casual: "Hey everyone! So I wanted to share this really cool project we've been working on. It's been super fun and I think you're all going to love what we've built. The whole team has been putting in amazing effort and the results are just incredible.",
+                motivational: "Today is the day we make a difference. Each one of you has the power to create positive change in your life and in the lives of others. Don't let fear hold you back from pursuing your dreams. Believe in yourself, take action, and watch as amazing things begin to happen."
+            };
+            
+            document.getElementById('speechText').value = samples[type] || samples.business;
+        }
+
+        // Add sample buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const sampleButtons = `
+                <div style="margin-top: 10px; text-align: center;">
+                    <small style="color: #666;">Quick samples:</small><br>
+                    <button type="button" onclick="loadSample('business')" style="margin: 5px; padding: 5px 10px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 5px; cursor: pointer;">Business</button>
+                    <button type="button" onclick="loadSample('casual')" style="margin: 5px; padding: 5px 10px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 5px; cursor: pointer;">Casual</button>
+                    <button type="button" onclick="loadSample('motivational')" style="margin: 5px; padding: 5px 10px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 5px; cursor: pointer;">Motivational</button>
+                </div>
+            `;
+            
+            document.querySelector('textarea').insertAdjacentHTML('afterend', sampleButtons);
+        });
+    </script>
+</body>
+</html>

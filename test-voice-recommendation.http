@@ -1,0 +1,61 @@
+### Test Voice Recommendation System
+
+### 1. Health Check
+GET http://localhost:8080/api/test/health
+
+### 2. Test Voice Models
+GET http://localhost:8080/api/test/voices
+
+### 3. Test Voice Recommendation (Simple)
+POST http://localhost:8080/api/test/voice-recommendation
+
+### 4. Get Available Voices
+GET http://localhost:8080/api/voice/voices
+
+### 5. Get Available Tones
+GET http://localhost:8080/api/voice/tones
+
+### 6. Get Voices by Tone
+GET http://localhost:8080/api/voice/voices/tone/confident
+
+### 7. Voice Analysis Only
+POST http://localhost:8080/api/voice/analyze
+Content-Type: application/json
+
+{
+  "speechText": "Hello everyone, I'm really excited to present our quarterly results today. Um, we've achieved some great milestones this quarter.",
+  "presentationType": "business",
+  "targetAudience": "professional",
+  "preferredGender": "MALE"
+}
+
+### 8. Complete Voice Recommendation
+POST http://localhost:8080/api/voice/recommend
+Content-Type: application/json
+
+{
+  "speechText": "Good morning team. I want to share some exciting news about our project progress. We've successfully completed the first phase and are ready to move forward.",
+  "presentationType": "business",
+  "targetAudience": "professional"
+}
+
+### 9. Casual Presentation Example
+POST http://localhost:8080/api/voice/analyze
+Content-Type: application/json
+
+{
+  "speechText": "Hey guys, so today I want to talk about this really cool project we've been working on. It's been super fun and I think you'll love it!",
+  "presentationType": "casual",
+  "targetAudience": "students",
+  "preferredGender": "FEMALE"
+}
+
+### 10. Empathetic Speech Example
+POST http://localhost:8080/api/voice/analyze
+Content-Type: application/json
+
+{
+  "speechText": "I understand this has been a difficult time for everyone. We're here to support each other through these challenges and find solutions together.",
+  "presentationType": "supportive",
+  "targetAudience": "general"
+}

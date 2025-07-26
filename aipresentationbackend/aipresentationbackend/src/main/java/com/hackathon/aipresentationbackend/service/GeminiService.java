@@ -5,6 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hackathon.aipresentationbackend.exception.GeminiApiException;
 import com.hackathon.aipresentationbackend.model.AnalysisResponse;
+import com.hackathon.aipresentationbackend.model.VoiceAnalysis;
+import com.hackathon.aipresentationbackend.model.MurfVoice;
+import com.hackathon.aipresentationbackend.model.ToneType;
+import com.hackathon.aipresentationbackend.model.VoiceGender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,12 +24,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.TimeoutException;
+import java.util.UUID;
+import java.util.Arrays;
 
 @Service
 public class GeminiService {
     private static final Logger log = LoggerFactory.getLogger(GeminiService.class);
     private static final String GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
-    private static final String GEMINI_MODEL = "models/gemini-2.0-flash";
+    private static final String GEMINI_MODEL = "models/gemini-1.5-flash-latest"; // Updated to a valid, recent model
     private static final String GENERATE_CONTENT_ENDPOINT = ":generateContent";
 
     private final WebClient webClient;
@@ -94,6 +100,29 @@ public class GeminiService {
         }
     }
 
+    /**
+     * Analyze user's speech and recommend optimal voice for improvement
+     */
+    public VoiceAnalysis analyzeVoiceAndRecommend(String speechText, String presentationType,
+                                                  String targetAudience, VoiceGender preferredGender) {
+        log.info("Analyzing voice for speech text length: {}, presentation type: {}, target audience: {}",
+                speechText.length(), presentationType, targetAudience);
+
+        try {
+            String prompt = createVoiceAnalysisPrompt(speechText, presentationType, targetAudience, preferredGender);
+            Map<String, Object> response = callGeminiApi(prompt);
+            return parseVoiceAnalysisResponse(response, speechText);
+        } catch (WebClientResponseException e) {
+            log.error("Gemini API error during voice analysis: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new GeminiApiException("Failed to analyze voice",
+                    HttpStatus.valueOf(e.getStatusCode().value()), e);
+        } catch (Exception e) {
+            log.error("Error analyzing voice: {}", e.getMessage(), e);
+            throw new GeminiApiException("Failed to analyze voice",
+                    HttpStatus.INTERNAL_SERVER_ERROR, e);
+        }
+    }
+
     private Map<String, Object> callGeminiApi(String prompt) {
         log.debug("Calling Gemini API with prompt length: {}", prompt.length());
 
@@ -103,9 +132,8 @@ public class GeminiService {
         content.put("role", "user");
         requestBody.put("contents", List.of(content));
 
-        // --- THIS IS THE CORRECTED LINE ---
         String apiUrl = GEMINI_API_BASE_URL + "/" + GEMINI_MODEL + GENERATE_CONTENT_ENDPOINT + "?key=" + geminiApiKey;
-        log.info("Calling Gemini API at URL: {}", apiUrl); // Added log to confirm URL
+        log.info("Calling Gemini API at URL: {}", apiUrl);
 
         try {
             return webClient.post()
@@ -137,7 +165,7 @@ public class GeminiService {
                 "Based on your analysis, you MUST provide feedback in the following JSON format. " +
                 "Provide one concise sentence of positive feedback. Even if the delivery was excellent, you MUST provide at least one specific, actionable improvement suggestion. Do not leave any field empty." +
                 "\n{" +
-                "\n  \"score\": [a numerical score between 1-10]," +
+                "\n  \"score\": [numerical score between 1-10]," +
                 "\n  \"positiveFeedback\": \"[one sentence of positive feedback highlighting a strength]\"," +
                 "\n  \"improvementPoints\": \"[one actionable improvement suggestion]\"" +
                 "\n}";
@@ -253,5 +281,101 @@ public class GeminiService {
             return status.is5xxServerError() || status == HttpStatus.TOO_MANY_REQUESTS;
         }
         return throwable instanceof TimeoutException;
+    }
+
+    private String createVoiceAnalysisPrompt(String speechText, String presentationType,
+                                             String targetAudience, VoiceGender preferredGender) {
+        StringBuilder prompt = new StringBuilder();
+        prompt.append("You are an expert speech coach and voice analyst. Analyze the following speech text and recommend the most suitable voice characteristics for optimal delivery improvement.\n\n");
+
+        prompt.append("Speech Text:\n").append(speechText).append("\n\n");
+        prompt.append("Presentation Type: ").append(presentationType != null ? presentationType : "general").append("\n");
+        prompt.append("Target Audience: ").append(targetAudience != null ? targetAudience : "general").append("\n");
+        if (preferredGender != null) {
+            prompt.append("Preferred Gender: ").append(preferredGender.getValue()).append("\n");
+        }
+
+        prompt.append("\nAvailable Voice Tones:\n");
+        prompt.append("- CONFIDENT: Strong, assured tone for authority and leadership\n");
+        prompt.append("- CONVERSATIONAL: Natural, friendly tone for casual engagement\n");
+        prompt.append("- URGENT: Energetic, pressing tone for importance and immediacy\n");
+        prompt.append("- EMPATHETIC: Warm, understanding tone for care and compassion\n\n");
+
+        prompt.append("Available Voice Options (with their primary tones):\n");
+        for (MurfVoice voice : MurfVoice.values()) {
+            prompt.append("- ").append(voice.getVoiceId().toUpperCase())
+                    .append(" (").append(voice.getGender().getValue())
+                    .append(", ").append(voice.getAge().getValue())
+                    .append(", ").append(voice.getPrimaryTone().getValue())
+                    .append("): ").append(voice.getDescription()).append("\n");
+        }
+
+        prompt.append("\nBased on your analysis, provide your recommendation in the following JSON format:\n");
+        prompt.append("{\n");
+        prompt.append("  \"detectedTone\": \"[current tone you detect in the speech - one of: confident, conversational, urgent, empathetic, neutral, hesitant, monotone]\",\n");
+        prompt.append("  \"recommendedTone\": \"[recommended tone from: confident, conversational, urgent, empathetic]\",\n");
+        prompt.append("  \"recommendedVoiceId\": \"[voice ID from the available options above]\",\n");
+        prompt.append("  \"analysisReason\": \"[2-3 sentences explaining why this voice would help improve the delivery]\",\n");
+        prompt.append("  \"improvementAreas\": [\"[area 1]\", \"[area 2]\", \"[area 3]\"],\n");
+        prompt.append("  \"confidenceScore\": [0.0-1.0 confidence in recommendation]\n");
+        prompt.append("}\n\n");
+        prompt.append("Consider factors like: speech content complexity, emotional tone, target audience appropriateness, and areas where the speaker could improve their delivery impact.");
+
+        return prompt.toString();
+    }
+
+    private VoiceAnalysis parseVoiceAnalysisResponse(Map<String, Object> response, String speechText) {
+        try {
+            String text = extractTextFromResponse(response);
+            String jsonContent = cleanJsonString(text);
+            JsonNode rootNode = objectMapper.readTree(jsonContent);
+
+            String detectedTone = rootNode.path("detectedTone").asText();
+            String recommendedToneStr = rootNode.path("recommendedTone").asText();
+            String recommendedVoiceId = rootNode.path("recommendedVoiceId").asText();
+            String analysisReason = rootNode.path("analysisReason").asText();
+            double confidenceScore = rootNode.path("confidenceScore").asDouble(0.8);
+
+            // Parse improvement areas
+            List<String> improvementAreas = objectMapper.convertValue(
+                    rootNode.path("improvementAreas"),
+                    new TypeReference<List<String>>() {}
+            );
+
+            // Convert recommended tone to enum
+            ToneType recommendedTone;
+            try {
+                recommendedTone = ToneType.fromValue(recommendedToneStr);
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid recommended tone '{}', defaulting to CONVERSATIONAL", recommendedToneStr);
+                recommendedTone = ToneType.CONVERSATIONAL;
+            }
+
+            // Find recommended voice
+            MurfVoice recommendedVoice;
+            try {
+                recommendedVoice = MurfVoice.fromVoiceId(recommendedVoiceId.toLowerCase());
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid voice ID '{}', selecting default voice for tone {}", recommendedVoiceId, recommendedTone);
+                MurfVoice[] voicesForTone = MurfVoice.getVoicesByTone(recommendedTone);
+                recommendedVoice = voicesForTone.length > 0 ? voicesForTone[0] : MurfVoice.ALEX;
+            }
+
+            return new VoiceAnalysis(
+                    UUID.randomUUID().toString(),
+                    speechText,
+                    detectedTone,
+                    recommendedTone.getValue(),
+                    recommendedVoice,
+                    analysisReason,
+                    improvementAreas,
+                    confidenceScore
+            );
+
+        } catch (Exception e) {
+            log.error("Error parsing voice analysis response: {}", e.getMessage(), e);
+            throw new GeminiApiException("Failed to parse voice analysis response",
+                    HttpStatus.INTERNAL_SERVER_ERROR, e);
+        }
     }
 }
