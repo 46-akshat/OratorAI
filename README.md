@@ -21,12 +21,10 @@ This project was developed as a comprehensive demonstration of integrating multi
     -   An overall score from 1-10.
     -   Positive feedback on what the user did well.
     -   Actionable points for improvement.
--   **Intelligent Audio Feedback:**
-    -   **Automatic Tone Detection:** Gemini analyzes the script's content to determine the most appropriate emotional tone (e.g., confident, urgent).
-    -   **Automatic Gender Matching:** The application detects the user's voice and provides a matching AI coach voice (male or female).
-    -   **Ideal Delivery:** Murf.ai generates a high-quality audio version of the original script, delivered in the AI-recommended voice and tone, for the user to learn from.
+-   **Ideal Audio Delivery:** Murf.ai generates a high-quality audio version of the original script using a professional, clear voice. This allows the user to hear an example of an ideal delivery.
 -   **File System Integration:** As a desktop application, users can save their feedback as a text file and download the generated audio feedback directly to their computer.
 -   **Animated Splash Screen:** A professional, animated loading screen provides a polished user experience on startup.
+
 
 ---
 Here are the screenshots for the desktop application:
@@ -103,4 +101,14 @@ Here are the screenshots for the desktop application:
     npm run electron:start
     ```
     This command will start the Vite development server and launch the Electron desktop application.
+
+    
+## Future Updates
+
+This project has a strong foundation that can be extended with even more intelligent features. Potential future updates include:
+
+-   **AI-Driven Tone & Gender Matching:** Implement the logic for Gemini to analyze the script's emotional content and the user's voice to automatically select the most appropriate tone and gender for the ideal audio delivery from Murf.ai.
+-   **Practice History & Progress Tracking:** Allow users to save their practice sessions and view their progress over time, with charts visualizing their score improvements for specific scripts.
+-   **Real-time Delivery Feedback:** Provide live visual feedback during the recording process, such as a VU meter for volume and a words-per-minute (WPM) counter to help users manage their pacing in real-time.
+-   **Advanced Analysis:** Expand the Gemini prompt to analyze and provide feedback on more nuanced aspects of speech, such as the use and effectiveness of pauses, sentiment analysis, and the detection of repetitive phrases.
 
