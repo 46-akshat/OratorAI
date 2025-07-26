@@ -51,6 +51,9 @@ public class TranscriptionRequest {
     
     @JsonProperty("custom_spelling")
     private Map<String, String> customSpelling;
+    
+    @JsonProperty("disfluencies")
+    private Boolean disfluencies;
 
     
     // Default constructor
@@ -167,6 +170,14 @@ public class TranscriptionRequest {
         this.customSpelling = customSpelling;
     }
     
+    public Boolean getDisfluencies() {
+        return disfluencies;
+    }
+    
+    public void setDisfluencies(Boolean disfluencies) {
+        this.disfluencies = disfluencies;
+    }
+    
     /**
      * Builder for TranscriptionRequest
      */
@@ -184,6 +195,7 @@ public class TranscriptionRequest {
         private Boolean redactPii = false;
         private String[] redactPiiPolicies;
         private Map<String, String> customSpelling;
+        private Boolean disfluencies = true;
         
         public Builder audioUrl(String audioUrl) {
             this.audioUrl = audioUrl;
@@ -250,6 +262,11 @@ public class TranscriptionRequest {
             return this;
         }
         
+        public Builder disfluencies(Boolean disfluencies) {
+            this.disfluencies = disfluencies;
+            return this;
+        }
+        
         public TranscriptionRequest build() {
             TranscriptionRequest request = new TranscriptionRequest();
             request.audioUrl = this.audioUrl;
@@ -265,6 +282,7 @@ public class TranscriptionRequest {
             request.redactPii = this.redactPii;
             request.redactPiiPolicies = this.redactPiiPolicies;
             request.customSpelling = this.customSpelling;
+            request.disfluencies = this.disfluencies;
             return request;
         }
     }

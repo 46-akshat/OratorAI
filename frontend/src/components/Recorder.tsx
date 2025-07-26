@@ -1,20 +1,21 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Mic, Square, BarChart3 } from "lucide-react";
+import { Mic, Square, BarChart3, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// The props have been simplified for the new functionality
 interface RecorderProps {
   isScriptLocked: boolean;
-  onRecordingComplete: (audioBlob: Blob) => void;
+  onRecordingComplete: (audioBlob: Blob | null) => void;
   isLoading: boolean;
+  transcribedText?: string; // New prop to receive the final transcript
 }
 
 const Recorder = ({
   isScriptLocked,
   onRecordingComplete,
-  isLoading
+  isLoading,
+  transcribedText
 }: RecorderProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [hasRecorded, setHasRecorded] = useState(false);
@@ -23,99 +24,108 @@ const Recorder = ({
   const { toast } = useToast();
 
   const startRecording = async () => {
+    // Signal to the parent to clear previous feedback before starting a new recording
+    onRecordingComplete(null);
+
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaRecorderRef.current = new MediaRecorder(stream);
-        audioChunksRef.current = []; // Clear previous recording
+        audioChunksRef.current = [];
 
-        // This event handler collects the audio data
         mediaRecorderRef.current.ondataavailable = (event) => {
           audioChunksRef.current.push(event.data);
         };
 
-        // This event handler is called when recording stops
         mediaRecorderRef.current.onstop = () => {
-          // Combine all chunks into a single audio file (Blob)
           const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-          // Send the complete audio file to the parent component to trigger analysis
           onRecordingComplete(audioBlob);
-          // Stop the microphone track to turn off the browser's recording indicator
           stream.getTracks().forEach(track => track.stop());
         };
 
         mediaRecorderRef.current.start();
         setIsRecording(true);
         setHasRecorded(true);
-        toast({ title: "Recording Started", description: "Start speaking your presentation now." });
+        toast({ title: "Recording Started" });
 
       } catch (err) {
-        console.error("Microphone access error:", err);
-        toast({
-          title: "Microphone Error",
-          description: "Could not access the microphone. Please check your browser permissions.",
-          variant: "destructive",
-        });
+        toast({ title: "Microphone Error", variant: "destructive" });
       }
-    } else {
-      toast({
-        title: "Browser Not Supported",
-        description: "Your browser does not support audio recording.",
-        variant: "destructive",
-      });
     }
   };
 
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop(); // This will trigger the 'onstop' event handler
+      mediaRecorderRef.current.stop();
       setIsRecording(false);
       toast({ title: "Recording Complete", description: "Analysis will begin shortly." });
     }
   };
 
-  // The UI is now much simpler
-  const renderButton = () => {
-    if (!isScriptLocked) {
-      return <Button disabled variant="secondary" className="w-full text-lg py-6"><Mic className="mr-2 h-5 w-5" />Lock Script to Record</Button>;
-    }
+  // This function determines what to display in the component's body
+  const renderContent = () => {
+    // State 1: During recording
     if (isRecording) {
-      return <Button onClick={stopRecording} variant="destructive" className="w-full text-lg py-6 animate-pulse"><Square className="mr-2 h-5 w-5" />Stop Recording</Button>;
+      return (
+        <div className="flex-1 flex flex-col justify-center items-center text-center space-y-4">
+          <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 1.5, repeat: Infinity }}>
+            <Mic className="h-16 w-16 text-red-500" />
+          </motion.div>
+          <p className="text-lg text-muted-foreground">Recording in progress...</p>
+          <Button onClick={stopRecording} variant="destructive" size="lg" className="w-full">
+            <Square className="mr-2 h-4 w-4" /> Stop Recording
+          </Button>
+        </div>
+      );
     }
-    // After recording, the button will show the loading state from the parent
-    if (isLoading) {
-        return <Button disabled className="w-full text-lg py-6"><BarChart3 className="mr-2 h-5 w-5 animate-spin" />Analyzing...</Button>;
+    
+    // State 2: After analysis is complete and we have the final transcript
+    if (transcribedText) {
+      return (
+        <div className="flex-1 flex flex-col gap-4 justify-between">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-white/5 rounded-lg p-4 border border-white/10 h-full overflow-y-auto"
+          >
+            <h3 className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
+              <FileText className="h-4 w-4" /> What We Heard:
+            </h3>
+            <p className="text-sm text-foreground leading-relaxed italic">
+              "{transcribedText}"
+            </p>
+          </motion.div>
+          <Button onClick={startRecording} size="lg" className="w-full">
+            <Mic className="mr-2 h-4 w-4" /> Record Again
+          </Button>
+        </div>
+      );
     }
-    // Default state and after analysis is complete
-    return <Button onClick={startRecording} className="w-full text-lg py-6"><Mic className="mr-2 h-5 w-5" />{hasRecorded ? "Record Again" : "Start Recording"}</Button>;
+    
+    // State 3: Default view, ready to record (or loading)
+    return (
+      <div className="flex-1 flex flex-col justify-center items-center text-center space-y-4">
+        <Mic className="h-16 w-16 text-primary/50" />
+        <h3 className="text-xl font-semibold text-foreground">
+          {hasRecorded ? "Ready for your next take?" : "Ready to Record?"}
+        </h3>
+        <p className="text-muted-foreground">
+          {isScriptLocked ? "Press the button to begin." : "Lock your script to start."}
+        </p>
+        <Button onClick={startRecording} disabled={!isScriptLocked || isLoading} size="lg" className="w-full">
+          {isLoading ? <><BarChart3 className="mr-2 h-4 w-4 animate-spin" /> Analyzing...</> : <><Mic className="mr-2 h-4 w-4" /> {hasRecorded ? "Record Again" : "Start Recording"}</>}
+        </Button>
+      </div>
+    );
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
-      className="flex flex-col h-full"
-    >
+    <motion.div className="flex flex-col h-full">
       <div className="flex items-center gap-3 mb-4">
         <Mic className="h-6 w-6 text-primary" />
         <h2 className="text-xl font-bold text-foreground">Delivery & Recording</h2>
       </div>
-      
-      <div className="flex-1 flex flex-col justify-center items-center gap-6">
-        <div className="text-center text-muted-foreground text-lg">
-            {isRecording && "Recording in progress..."}
-            {isLoading && "Please wait while we analyze your speech."}
-            {!isRecording && !isLoading && (hasRecorded ? "Recording complete. You can record again or view your feedback." : "Press 'Start Recording' to begin.")}
-        </div>
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="w-full"
-        >
-          {renderButton()}
-        </motion.div>
-      </div>
+      {renderContent()}
     </motion.div>
   );
 };

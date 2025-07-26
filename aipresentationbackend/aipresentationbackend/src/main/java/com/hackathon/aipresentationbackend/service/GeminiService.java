@@ -25,7 +25,7 @@ import java.util.concurrent.TimeoutException;
 public class GeminiService {
     private static final Logger log = LoggerFactory.getLogger(GeminiService.class);
     private static final String GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
-    private static final String GEMINI_MODEL = "models/gemini-2.0-flash";
+    private static final String GEMINI_MODEL = "models/gemini-1.5-flash-latest"; // Updated to a valid, recent model
     private static final String GENERATE_CONTENT_ENDPOINT = ":generateContent";
 
     private final WebClient webClient;
@@ -94,6 +94,8 @@ public class GeminiService {
         }
     }
 
+
+
     private Map<String, Object> callGeminiApi(String prompt) {
         log.debug("Calling Gemini API with prompt length: {}", prompt.length());
 
@@ -103,9 +105,8 @@ public class GeminiService {
         content.put("role", "user");
         requestBody.put("contents", List.of(content));
 
-        // --- THIS IS THE CORRECTED LINE ---
         String apiUrl = GEMINI_API_BASE_URL + "/" + GEMINI_MODEL + GENERATE_CONTENT_ENDPOINT + "?key=" + geminiApiKey;
-        log.info("Calling Gemini API at URL: {}", apiUrl); // Added log to confirm URL
+        log.info("Calling Gemini API at URL: {}", apiUrl);
 
         try {
             return webClient.post()
@@ -137,7 +138,7 @@ public class GeminiService {
                 "Based on your analysis, you MUST provide feedback in the following JSON format. " +
                 "Provide one concise sentence of positive feedback. Even if the delivery was excellent, you MUST provide at least one specific, actionable improvement suggestion. Do not leave any field empty." +
                 "\n{" +
-                "\n  \"score\": [a numerical score between 1-10]," +
+                "\n  \"score\": [numerical score between 1-10]," +
                 "\n  \"positiveFeedback\": \"[one sentence of positive feedback highlighting a strength]\"," +
                 "\n  \"improvementPoints\": \"[one actionable improvement suggestion]\"" +
                 "\n}";
@@ -254,4 +255,6 @@ public class GeminiService {
         }
         return throwable instanceof TimeoutException;
     }
+
+
 }

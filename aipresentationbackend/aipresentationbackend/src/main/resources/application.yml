@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+# API Keys
+gemini:
+  api:
+    key: AIzaSyDPhRevtiYONdjEIuVZelUvDAyvA2mFfr4
+
+murf:
+  api:
+    key: ap2_5a60a2be-5421-41de-869c-5894bc00f371
+
+assemblyai:
+  api:
+    key: eaee56725aaf4c6a9600509918bb5044
+
+logging:
+  level:
+    com.hackathon.aipresentationbackend: INFO
+    org.springframework.web.reactive.function.client: WARN

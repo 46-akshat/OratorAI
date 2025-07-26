@@ -1,0 +1,31 @@
+# Copy-Paste Test Scripts
+
+## HESITANT BUSINESS (Should recommend confident voice)
+Um, good morning everyone. So, uh, today I want to present our quarterly results. We've, um, achieved some growth this quarter - about 15% I think. The team has, uh, worked really hard and, um, I believe we can do better next quarter.
+
+## CONFIDENT BUSINESS (Should recommend professional voice)
+Good morning everyone. I'm excited to present our Q3 results today. We've achieved a remarkable 25% growth in revenue, exceeding all our targets. Our team has demonstrated exceptional performance across all departments. I'm confident that we're well-positioned for continued success.
+
+## CASUAL ENTHUSIASTIC (Should recommend conversational voice)
+Hey everyone! I'm super excited to share my project with you today. So I've been working on this really cool app that helps students manage their time better. It's been such an amazing journey building this, and I think you're all going to love what I've created!
+
+## URGENT ANNOUNCEMENT (Should recommend energetic voice)
+Attention everyone, I need to share some important information immediately. We've received a critical update that affects our project timeline. The deadline has been moved up by two weeks. We need to accelerate our efforts and prioritize the most essential features.
+
+## SUPPORTIVE MESSAGE (Should recommend empathetic voice)
+I understand that this has been a challenging time for everyone. We're all facing difficulties, and it's completely normal to feel overwhelmed. Please know that we're here to support each other through this. Your wellbeing is our priority.
+
+## SALES PITCH (Should recommend urgent/compelling voice)
+This is an incredible opportunity that you don't want to miss. Our product will revolutionize how you work and save you hours every week. The early bird pricing ends tomorrow, so you need to act fast. Don't let this chance slip away.
+
+## EDUCATIONAL CONTENT (Should recommend conversational voice)
+Today we're going to learn about photosynthesis. This is a fascinating process where plants convert sunlight into energy. Think of it as nature's way of making food from light. The process involves chlorophyll, which gives plants their green color.
+
+## FINANCIAL REPORT (Should recommend confident professional voice)
+Ladies and gentlemen, I'm pleased to report our financial performance for the fiscal year. Revenue increased by 18% to $2.4 million. Operating expenses were well-controlled at $1.8 million. Our net profit margin improved to 12%.
+
+## TEAM UPDATE (Should recommend conversational voice)
+Hi team! I wanted to give you all a quick update on our project progress. We've made some really great strides this week. The design phase is complete, and we're moving into development. I'm really happy with how everything is coming together.
+
+## MOTIVATIONAL SPEECH (Could vary - urgent or empathetic)
+Every great achievement starts with a single step. You have the power to create the change you want to see. Yes, it will be challenging, but that's what makes success so rewarding. Believe in yourself, take action, and don't let fear hold you back.

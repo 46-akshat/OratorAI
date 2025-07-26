@@ -8,6 +8,7 @@ public class AnalysisResponse {
     private final String improvementPoints;
     private final String audioUrl;
     private final String spokenTranscript;
+    private final VoiceRecommendation voiceRecommendation; // New field for voice recommendation
 
     // --- Private Constructor ---
     // This constructor now correctly accepts only a Builder object.
@@ -17,6 +18,7 @@ public class AnalysisResponse {
         this.improvementPoints = builder.improvementPoints;
         this.audioUrl = builder.audioUrl;
         this.spokenTranscript = builder.spokenTranscript; // Gets the transcript from the builder
+        this.voiceRecommendation = builder.voiceRecommendation; // New field
     }
 
     // --- Getters ---
@@ -40,6 +42,10 @@ public class AnalysisResponse {
         return spokenTranscript;
     }
 
+    public VoiceRecommendation getVoiceRecommendation() {
+        return voiceRecommendation;
+    }
+
     // --- Static nested Builder class ---
     public static class Builder {
         private int score;
@@ -47,6 +53,7 @@ public class AnalysisResponse {
         private String improvementPoints;
         private String audioUrl;
         private String spokenTranscript;
+        private VoiceRecommendation voiceRecommendation;
 
         public Builder score(int score) {
             this.score = score;
@@ -70,6 +77,11 @@ public class AnalysisResponse {
 
         public Builder spokenTranscript(String spokenTranscript) {
             this.spokenTranscript = spokenTranscript;
+            return this;
+        }
+
+        public Builder voiceRecommendation(VoiceRecommendation voiceRecommendation) {
+            this.voiceRecommendation = voiceRecommendation;
             return this;
         }
 
