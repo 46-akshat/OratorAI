@@ -87,7 +87,8 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    // CORRECTED: 'overflow-hidden' has been removed from this line
+    <div className="min-h-screen bg-background relative">
       <AnimatePresence>
         {isLoading && <ModalLoader />}
       </AnimatePresence>

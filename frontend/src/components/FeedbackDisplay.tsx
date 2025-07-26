@@ -1,17 +1,16 @@
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button"; // Import Button
+import { Button } from "@/components/ui/button";
 import { Award, TrendingUp, Volume2, AlertCircle, Download } from "lucide-react";
-import { useToast } from "@/hooks/use-toast"; // Import useToast for feedback
+import { useToast } from "@/hooks/use-toast";
 
-// This interface defines the shape of the data the component expects
 interface FeedbackData {
   score: number;
   positiveFeedback: string;
   improvementPoints: string;
   audioUrl: string;
-  spokenTranscript?: string; // Optional: if you add it from the backend
+  spokenTranscript?: string;
 }
 
 interface FeedbackDisplayProps {
@@ -20,7 +19,7 @@ interface FeedbackDisplayProps {
 }
 
 const FeedbackDisplay = ({ feedbackData, error }: FeedbackDisplayProps) => {
-  const { toast } = useToast(); // Initialize toast
+  const { toast } = useToast();
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -36,7 +35,6 @@ const FeedbackDisplay = ({ feedbackData, error }: FeedbackDisplayProps) => {
     },
   };
 
-  // Helper functions to determine colors based on the score
   const getScoreColor = (score: number) => {
     if (score >= 8) return "text-green-400";
     if (score >= 5) return "text-yellow-400";
@@ -49,9 +47,12 @@ const FeedbackDisplay = ({ feedbackData, error }: FeedbackDisplayProps) => {
     return "destructive";
   };
   
-  // --- NEW: Handler for the download audio button ---
   const handleDownloadAudio = async () => {
     if (!feedbackData || !feedbackData.audioUrl) return;
+    if (!window.electronAPI) {
+        toast({ title: "Feature not available in web browser.", variant: "destructive" });
+        return;
+    }
     try {
       const success = await window.electronAPI.saveAudio(feedbackData.audioUrl);
       if (success) {
@@ -64,8 +65,29 @@ const FeedbackDisplay = ({ feedbackData, error }: FeedbackDisplayProps) => {
       toast({ title: "Error", description: "Failed to save the audio file.", variant: "destructive" });
     }
   };
+  
+  const handleExportFeedback = async () => {
+    if (!feedbackData) return;
+    if (!window.electronAPI) {
+        toast({ title: "Feature not available in web browser.", variant: "destructive" });
+        return;
+    }
 
-  // --- Renders an error message if the API call failed ---
+    const content = `AI Presentation Feedback\n\n---\nScore: ${feedbackData.score}/10\n\nWhat Went Well:\n${feedbackData.positiveFeedback}\n\nAreas for Improvement:\n${feedbackData.improvementPoints}`;
+    
+    try {
+        const success = await window.electronAPI.saveFeedback(content);
+        if (success) {
+            toast({ title: "Success", description: "Feedback exported successfully." });
+        } else {
+            toast({ title: "Save Cancelled", description: "The feedback file was not saved." });
+        }
+    } catch (error) {
+        console.error("Failed to export feedback:", error);
+        toast({ title: "Error", description: "An error occurred while exporting feedback.", variant: "destructive" });
+    }
+  };
+
   if (error) {
     return (
       <div className="flex flex-col h-full items-center justify-center text-center">
@@ -76,20 +98,21 @@ const FeedbackDisplay = ({ feedbackData, error }: FeedbackDisplayProps) => {
     );
   }
 
-  // --- Renders the final feedback if data is available ---
   if (feedbackData) {
     return (
-      <motion.div
-        variants={staggerContainer}
-        initial="hidden"
-        animate="visible"
-        className="flex flex-col h-full"
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <Award className="h-6 w-6 text-primary" />
-          <h2 className="text-xl font-bold text-foreground">AI Feedback</h2>
+      <motion.div initial="hidden" animate="visible" className="flex flex-col h-full">
+        <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+                <Award className="h-6 w-6 text-primary" />
+                <h2 className="text-xl font-bold text-foreground">AI Feedback</h2>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleExportFeedback}>
+                <Download className="mr-2 h-4 w-4" />
+                Export
+            </Button>
         </div>
         
+        {/* --- THIS IS THE CORRECTED LINE --- */}
         <div className="flex-1 space-y-4 overflow-y-auto pr-2">
           {/* Score Card */}
           <motion.div variants={cardVariants}>
@@ -142,8 +165,7 @@ const FeedbackDisplay = ({ feedbackData, error }: FeedbackDisplayProps) => {
                     <div className="flex items-center gap-2">
                       <Volume2 className="h-5 w-5" /> Hear an Ideal Delivery
                     </div>
-                    {/* --- NEW DOWNLOAD BUTTON --- */}
-                    <Button variant="ghost" size="icon" onClick={handleDownloadAudio}>
+                    <Button variant="ghost" size="icon" onClick={handleDownloadAudio} aria-label="Download audio">
                       <Download className="h-5 w-5" />
                     </Button>
                   </CardTitle>
@@ -161,7 +183,6 @@ const FeedbackDisplay = ({ feedbackData, error }: FeedbackDisplayProps) => {
     );
   }
 
-  // --- Renders the initial placeholder ---
   return (
     <div className="flex flex-col h-full items-center justify-center text-center text-muted-foreground">
       <Award className="h-16 w-16 mb-4" />
