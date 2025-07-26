@@ -1,7 +1,7 @@
 # Orator AI - Your Personal Presentation Coach
 
 
-<img width="1918" height="1007" alt="image" src="https://github.com/user-attachments/assets/9d112619-5e23-4abf-b98b-fe9abafd8e06" />
+<img width="1919" height="1008" alt="image" src="https://github.com/user-attachments/assets/2ac0573f-38fb-4463-b90b-46a2c0a3fb0d" />
 
 
 
