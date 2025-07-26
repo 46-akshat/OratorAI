@@ -30,8 +30,11 @@ This project was developed as a comprehensive demonstration of integrating multi
 
 ---
 Here are the screenshots for the desktop application:
-<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/78dc3d22-d6de-4920-a516-cd82fbdc0a64" />
+<img width="1600" height="839" alt="image" src="https://github.com/user-attachments/assets/8fa54d72-b046-4cb2-8ffc-5e2f05e57e66" />
+
+
 <img width="1600" height="806" alt="image" src="https://github.com/user-attachments/assets/9acf87a3-46a1-4810-ad8d-027448bd302d" />
+
 <img width="1600" height="611" alt="image" src="https://github.com/user-attachments/assets/6f951ac7-132d-4f8f-90a6-e31ae3fa0f70" />
 
 
