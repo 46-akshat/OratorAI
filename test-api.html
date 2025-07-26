@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Test API Response</h1>
+    <button onclick="testAPI()">Test Backend API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            try {
+                // Test health endpoint first
+                const healthResponse = await fetch('http://localhost:8080/api/test/health');
+                const healthData = await healthResponse.json();
+                
+                document.getElementById('result').innerHTML = `
+                    <h2>Health Check:</h2>
+                    <pre>${JSON.stringify(healthData, null, 2)}</pre>
+                `;
+                
+                console.log('Health check:', healthData);
+                
+                // Test voices endpoint
+                const voicesResponse = await fetch('http://localhost:8080/api/test/voices');
+                const voicesData = await voicesResponse.json();
+                
+                document.getElementById('result').innerHTML += `
+                    <h2>Voices Test:</h2>
+                    <pre>${JSON.stringify(voicesData, null, 2)}</pre>
+                `;
+                
+                console.log('Voices test:', voicesData);
+                
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <h2>Error:</h2>
+                    <pre>${error.message}</pre>
+                `;
+                console.error('API test failed:', error);
+            }
+        }
+    </script>
+</body>
+</html>

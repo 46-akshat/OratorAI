@@ -115,4 +115,18 @@ public enum MurfVoice {
         
         throw new IllegalArgumentException("Invalid voice ID: " + voiceId);
     }
+    
+    /**
+     * Convert to VoiceOption for compatibility with existing system
+     */
+    public VoiceOption toVoiceOption() {
+        return new VoiceOption.Builder()
+                .voiceId(this.voiceId)
+                .name(this.voiceId.substring(0, 1).toUpperCase() + this.voiceId.substring(1))
+                .gender(this.gender.getValue())
+                .accent("American") // Default accent
+                .description(this.description)
+                .supportedTones(java.util.Arrays.asList(this.primaryTone.getValue()))
+                .build();
+    }
 }

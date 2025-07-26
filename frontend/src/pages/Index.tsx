@@ -9,11 +9,29 @@ import SplashScreen from "@/components/SplashScreen";
 import { useToast } from "@/hooks/use-toast";
 import { Brain } from "lucide-react";
 
+interface VoiceOption {
+  voiceId: string;
+  name: string;
+  gender: string;
+  accent: string;
+  description: string;
+  supportedTones: string[];
+}
+
+interface VoiceRecommendation {
+  voiceOption: VoiceOption;
+  recommendedTone: string;
+  recommendationReason: string;
+  confidenceScore: number;
+}
+
 interface FeedbackData {
   score: number;
   positiveFeedback: string;
   improvementPoints: string;
   audioUrl: string;
+  spokenTranscript?: string; // Added missing field
+  voiceRecommendation?: VoiceRecommendation;
 }
 
 const Index = () => {
@@ -22,6 +40,7 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [feedbackData, setFeedbackData] = useState<FeedbackData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [transcribedText, setTranscribedText] = useState<string>("");
   const { toast } = useToast();
   const [isAppReady, setIsAppReady] = useState(false);
 
@@ -53,6 +72,7 @@ const Index = () => {
     setIsLoading(true);
     setError(null);
     setFeedbackData(null);
+    setTranscribedText(""); // Clear previous transcription
     const formData = new FormData();
     formData.append("audioFile", audioBlob, "recording.wav");
     formData.append("originalScript", script);
@@ -67,7 +87,17 @@ const Index = () => {
         }
       );
       console.log("Data received from backend:", response.data);
+      console.log("Spoken transcript:", response.data.spokenTranscript);
+      console.log("Voice recommendation:", response.data.voiceRecommendation);
+      
       setFeedbackData(response.data);
+      // Extract and set the transcribed text
+      if (response.data.spokenTranscript) {
+        setTranscribedText(response.data.spokenTranscript);
+        console.log("Transcribed text set:", response.data.spokenTranscript);
+      } else {
+        console.log("No spokenTranscript in response");
+      }
       toast({
         title: "Analysis Complete",
         description: "Your presentation feedback is ready!",
@@ -131,6 +161,7 @@ const Index = () => {
                     isScriptLocked={isScriptLocked}
                     onRecordingComplete={handleRecordingComplete}
                     isLoading={isLoading}
+                    transcribedText={transcribedText}
                   />
                 </div>
                 <div className="bg-gradient-surface rounded-xl p-6 border border-border shadow-card">

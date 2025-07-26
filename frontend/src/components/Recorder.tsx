@@ -9,12 +9,14 @@ interface RecorderProps {
   isScriptLocked: boolean;
   onRecordingComplete: (audioBlob: Blob) => void;
   isLoading: boolean;
+  transcribedText?: string;
 }
 
 const Recorder = ({
   isScriptLocked,
   onRecordingComplete,
-  isLoading
+  isLoading,
+  transcribedText
 }: RecorderProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [hasRecorded, setHasRecorded] = useState(false);
@@ -102,12 +104,35 @@ const Recorder = ({
         <h2 className="text-xl font-bold text-foreground">Delivery & Recording</h2>
       </div>
       
-      <div className="flex-1 flex flex-col justify-center items-center gap-6">
+      <div className="flex-1 flex flex-col gap-6">
+        {/* Status Message */}
         <div className="text-center text-muted-foreground text-lg">
             {isRecording && "Recording in progress..."}
             {isLoading && "Please wait while we analyze your speech."}
             {!isRecording && !isLoading && (hasRecorded ? "Recording complete. You can record again or view your feedback." : "Press 'Start Recording' to begin.")}
         </div>
+
+        {/* Transcribed Text Display */}
+        {transcribedText && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex-1 bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border-2 border-dashed border-gray-300 dark:border-gray-600"
+          >
+            <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              What You Said:
+            </h3>
+            <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed max-h-40 overflow-y-auto">
+              {transcribedText}
+            </div>
+          </motion.div>
+        )}
+
+
+
+        {/* Recording Button */}
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}

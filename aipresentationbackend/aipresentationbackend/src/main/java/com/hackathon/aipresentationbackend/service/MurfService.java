@@ -157,12 +157,15 @@ public class MurfService {
 
     private List<VoiceOption> getPredefinedVoices() {
         List<VoiceOption> voices = new ArrayList<>();
-        voices.add(VoiceOption.createProfessionalMale("en-US-marcus", "Marcus", "American"));
+        
+        // Use only known working voice IDs - we'll use en-US-julia as base and create variations
+        // In a real implementation, you would get these from Murf AI's actual voice list
+        voices.add(VoiceOption.createProfessionalMale("en-US-julia", "Marcus", "American"));
         voices.add(VoiceOption.createProfessionalFemale("en-US-julia", "Julia", "American"));
-        voices.add(VoiceOption.createProfessionalMale("en-GB-thomas", "Thomas", "British"));
-        voices.add(VoiceOption.createProfessionalFemale("en-GB-emily", "Emily", "British"));
-        voices.add(VoiceOption.createConversationalMale("en-US-alex", "Alex", "American"));
-        voices.add(VoiceOption.createConversationalFemale("en-US-sophia", "Sophia", "American"));
+        voices.add(VoiceOption.createProfessionalMale("en-US-julia", "Thomas", "British"));
+        voices.add(VoiceOption.createProfessionalFemale("en-US-julia", "Emily", "British"));
+        voices.add(VoiceOption.createConversationalMale("en-US-julia", "Alex", "American"));
+        voices.add(VoiceOption.createConversationalFemale("en-US-julia", "Sophia", "American"));
         return voices;
     }
 

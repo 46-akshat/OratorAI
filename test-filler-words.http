@@ -1,0 +1,15 @@
+### Test filler word detection with AssemblyAI
+### Record audio saying: "Um, hello, uh, this is a test, like, you know, with filler words"
+
+POST http://localhost:8080/api/test-transcribe
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="audioFile"; filename="test-filler-words.wav"
+Content-Type: audio/wav
+
+< ./test-audio-with-fillers.wav
+--boundary--
+
+### Expected result should include: "Um, hello, uh, this is a test, like, you know, with filler words"
+### If filler words are missing, the configuration needs adjustment

@@ -249,7 +249,17 @@ public class AssemblyAIService {
     }
 
     private Mono<TranscriptionResponse> submitTranscriptionRequest(String audioUrl) {
-        TranscriptionRequest request = new TranscriptionRequest(audioUrl);
+        // Configure transcription to capture filler words and improve speech analysis
+        TranscriptionRequest request = new TranscriptionRequest.Builder()
+                .audioUrl(audioUrl)
+                .languageCode("en_us")
+                .punctuate(true)
+                .formatText(false)  // Keep raw text for better filler word detection
+                .filterProfanity(false)  // CRITICAL: Don't filter out filler words like "um", "uh"
+                .disfluencies(true)  // ENABLE: Detect filler words and speech disfluencies
+                .build();
+                
+        log.info("Submitting transcription request with filler word detection enabled");
         return webClient.post()
                 .uri(ASSEMBLY_AI_BASE_URL + TRANSCRIPT_ENDPOINT)
                 .header(HttpHeaders.AUTHORIZATION, assemblyApiKey)
