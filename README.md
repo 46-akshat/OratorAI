@@ -3,7 +3,7 @@
 
 <img width="1918" height="1007" alt="image" src="https://github.com/user-attachments/assets/9d112619-5e23-4abf-b98b-fe9abafd8e06" />
 
-<img width="1727" height="937" alt="image" src="https://github.com/user-attachments/assets/d4fc02ad-9145-4c8a-9d97-7e37619592f8" />
+
 
 
 
@@ -29,7 +29,7 @@ This project was developed as a comprehensive demonstration of integrating multi
 -   **Animated Splash Screen:** A professional, animated loading screen provides a polished user experience on startup.
 
 ---
-
+<img width="1727" height="937" alt="image" src="https://github.com/user-attachments/assets/d4fc02ad-9145-4c8a-9d97-7e37619592f8" />
 ## Tech Stack
 
 ### Frontend
