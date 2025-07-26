@@ -95,7 +95,7 @@ const Index = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center gap-3">
             <Brain className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">AI Presentation Coach</h1>
+            <h1 className="text-2xl font-bold text-foreground">Orator AI</h1>
           </div>
         </div>
       </header>
