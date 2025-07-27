@@ -37,7 +37,7 @@ Here are the screenshots for the desktop application:
 <img width="1763" height="953" alt="image" src="https://github.com/user-attachments/assets/7982e76b-dc2c-4b46-97ba-c942ebd97e6b" />
 
 
-
+Demo video:https://youtu.be/mXajQ91wOmw?si=TqcTlgrlj8RbJ6S3
 
 
 
