@@ -1,7 +1,8 @@
 # Orator AI - Your Personal Presentation Coach
 
 
-<img width="1919" height="1008" alt="image" src="https://github.com/user-attachments/assets/2ac0573f-38fb-4463-b90b-46a2c0a3fb0d" />
+<img width="1919" height="1011" alt="image" src="https://github.com/user-attachments/assets/de427be4-9c0f-476d-9268-995fbc245161" />
+
 
 
 
@@ -31,11 +32,10 @@ Here are the screenshots for the desktop application:
 <img width="1600" height="839" alt="image" src="https://github.com/user-attachments/assets/8fa54d72-b046-4cb2-8ffc-5e2f05e57e66" />
 
 
-<img width="1600" height="806" alt="image" src="https://github.com/user-attachments/assets/9acf87a3-46a1-4810-ad8d-027448bd302d" />
+<img width="1763" height="953" alt="image" src="https://github.com/user-attachments/assets/7982e76b-dc2c-4b46-97ba-c942ebd97e6b" />
 
 
 
-<img width="1600" height="611" alt="image" src="https://github.com/user-attachments/assets/6f951ac7-132d-4f8f-90a6-e31ae3fa0f70" />
 
 
 
