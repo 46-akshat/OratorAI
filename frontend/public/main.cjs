@@ -11,7 +11,12 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.cjs')
     }
   });
-  win.loadURL('http://localhost:8081');
+
+  // Load your Vite dev server
+  win.loadURL('http://localhost:8081'); // Make sure this port is correct
+  
+  // Optional: Open DevTools automatically for debugging
+  // win.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
@@ -20,6 +25,12 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
 });
 
 // --- IPC Handlers for File System ---
@@ -54,7 +65,6 @@ ipcMain.handle('dialog:saveFeedback', async (event, feedbackContent) => {
     }
 });
 
-// CORRECTED: This handler is now much more robust.
 ipcMain.handle('dialog:saveAudio', async (event, audioUrl) => {
     try {
         const { canceled, filePath } = await dialog.showSaveDialog({
@@ -68,7 +78,6 @@ ipcMain.handle('dialog:saveAudio', async (event, audioUrl) => {
             return false;
         }
 
-        // Wrap the download in a Promise to handle the asynchronous operation correctly
         await new Promise((resolve, reject) => {
             const fileStream = fs.createWriteStream(filePath);
             https.get(audioUrl, (response) => {
@@ -81,7 +90,7 @@ ipcMain.handle('dialog:saveAudio', async (event, audioUrl) => {
                     fileStream.close(resolve);
                 });
             }).on('error', (err) => {
-                fs.unlink(filePath, () => {}); // Clean up the empty file on error
+                fs.unlink(filePath, () => {});
                 reject(err);
             });
         });
@@ -91,6 +100,6 @@ ipcMain.handle('dialog:saveAudio', async (event, audioUrl) => {
 
     } catch (error) {
         console.error('An error occurred in the saveAudio handler:', error);
-        return false; // Ensure we always return a boolean, even on unexpected errors
+        return false;
     }
 });

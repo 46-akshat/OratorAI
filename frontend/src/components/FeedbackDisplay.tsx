@@ -133,9 +133,7 @@ const FeedbackDisplay = ({ feedbackData, error }: FeedbackDisplayProps) => {
                     <div className="flex items-center gap-2">
                       <Volume2 className="h-5 w-5" /> Hear an Ideal Delivery
                     </div>
-                    <Button variant="ghost" size="icon" onClick={handleDownloadAudio} aria-label="Download audio">
-                      <Download className="h-5 w-5" />
-                    </Button>
+                
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
