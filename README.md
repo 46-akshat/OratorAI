@@ -29,7 +29,9 @@ This project was developed as a comprehensive demonstration of integrating multi
 
 ---
 Here are the screenshots for the desktop application:
-<img width="1600" height="839" alt="image" src="https://github.com/user-attachments/assets/8fa54d72-b046-4cb2-8ffc-5e2f05e57e66" />
+
+<img width="1915" height="952" alt="image" src="https://github.com/user-attachments/assets/dc29ad04-afc2-4894-b681-60fd9cc15c41" />
+
 
 
 <img width="1763" height="953" alt="image" src="https://github.com/user-attachments/assets/7982e76b-dc2c-4b46-97ba-c942ebd97e6b" />
